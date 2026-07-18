@@ -68,8 +68,6 @@ services:
     volumes:
       - mongo-data:/data/db
       - ./docker/mongo-init.js:/docker-entrypoint-initdb.d/mongo-init.js:ro
-    ports:
-      - 27017/tcp
     command: "--wiredTigerCacheSizeGB ${MONGO_CACHE_SIZE_GB:-1.0}"
     networks:
       - jikan_network
@@ -121,5 +119,3 @@ services:
     restart: unless-stopped
     volumes:
       - typesense-data:/data
-    ports:
-      - "8108/tcp"
