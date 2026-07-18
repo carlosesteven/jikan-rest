@@ -40,6 +40,11 @@ services:
     ports:
       - '8080:8080/tcp'
     hostname: jikan-rest-api
+    deploy:
+      resources:
+        limits:
+          cpus: '1.0'
+          memory: 768M
     healthcheck:
       # Also exercises the redis-backed microcache middleware (via a fast,
       # MAL-independent route) so a broken app<->redis connection is caught,
@@ -68,7 +73,7 @@ services:
     volumes:
       - mongo-data:/data/db
       - ./docker/mongo-init.js:/docker-entrypoint-initdb.d/mongo-init.js:ro
-    command: "--wiredTigerCacheSizeGB ${MONGO_CACHE_SIZE_GB:-1.0}"
+    command: "--wiredTigerCacheSizeGB ${MONGO_CACHE_SIZE_GB:-0.4}"
     networks:
       - jikan_network
     secrets:
@@ -80,6 +85,11 @@ services:
       MONGO_INITDB_ROOT_USERNAME_FILE: /run/secrets/db_admin_username
       MONGO_INITDB_ROOT_PASSWORD_FILE: /run/secrets/db_admin_password
       MONGO_INITDB_DATABASE: jikan_admin
+    deploy:
+      resources:
+        limits:
+          cpus: '0.5'
+          memory: 640M
     healthcheck:
       test: [ 'CMD-SHELL', 'mongosh mongodb://localhost:27017 --quiet --eval "db.runCommand(\"ping\").ok"' ]
       interval: 30s
@@ -100,6 +110,11 @@ services:
       - redis-server --requirepass "$$(cat /run/secrets/redis_password)"
     volumes:
       - redis-data:/data:rw
+    deploy:
+      resources:
+        limits:
+          cpus: '0.25'
+          memory: 320M
     healthcheck:
       test: [ 'CMD-SHELL', 'redis-cli -a "$$(cat /run/secrets/redis_password)" ping | grep -q PONG' ]
       interval: 500ms
@@ -117,5 +132,10 @@ services:
       - -c
       - TYPESENSE_API_KEY="$$(cat /run/secrets/typesense_api_key)" /opt/typesense-server --data-dir /data
     restart: unless-stopped
+    deploy:
+      resources:
+        limits:
+          cpus: '0.25'
+          memory: 272M
     volumes:
       - typesense-data:/data
