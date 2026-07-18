@@ -94,8 +94,6 @@ services:
       - redis-server --requirepass "$$(cat /run/secrets/redis_password)"
     volumes:
       - redis-data:/data:rw
-    ports:
-      - '6379/tcp'
     healthcheck:
       test: [ 'CMD-SHELL', 'redis-cli -a "$$(cat /run/secrets/redis_password)" ping | grep -q PONG' ]
       interval: 500ms
