@@ -47,7 +47,7 @@ services:
           memory: 768M
     healthcheck:
       test: [ 'CMD-SHELL', 'wget --spider -q "http://127.0.0.1:2114/health?plugin=http"' ]
-      interval: 2s
+      interval: 10s
       timeout: 2s
     links:
       - mongodb:mongodb
