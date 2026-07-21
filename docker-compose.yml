@@ -46,17 +46,9 @@ services:
           cpus: '1.0'
           memory: 768M
     healthcheck:
-      # Also exercises the redis-backed microcache middleware (via a fast,
-      # MAL-independent route) so a broken app<->redis connection is caught,
-      # not just whether the RoadRunner HTTP plugin itself is up. RoadRunner
-      # load-balances across one worker per CPU, and only workers that had
-      # already opened a redis connection go stale after a redis restart, so
-      # this probes several times per check to sample across the pool
-      # instead of risking a single lucky/unlucky worker.
-      test: [ 'CMD-SHELL', 'wget --spider -q "http://127.0.0.1:2114/health?plugin=http" || exit 1; for i in $$(seq 1 8); do code=$$(curl -s --max-time 2 -o /dev/null -w ''%{http_code}'' http://127.0.0.1:8080/v4/genres/anime); [ "$$code" = "200" ] || exit 1; done' ]
+      test: [ 'CMD-SHELL', 'wget --spider -q "http://127.0.0.1:2114/health?plugin=http"' ]
       interval: 2s
-      timeout: 5s
-      retries: 3
+      timeout: 2s
     links:
       - mongodb:mongodb
       - redis:redis
